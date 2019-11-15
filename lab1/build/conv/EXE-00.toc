@@ -36,6 +36,9 @@
   ('pyi_rth_multiprocessing',
    'C:\\Users\\97023\\Anaconda3\\envs\\cv\\lib\\site-packages\\PyInstaller\\loader\\rthooks\\pyi_rth_multiprocessing.py',
    'PYSOURCE'),
+  ('pyi_rth_pyqt5',
+   'C:\\Users\\97023\\Anaconda3\\envs\\cv\\lib\\site-packages\\PyInstaller\\loader\\rthooks\\pyi_rth_pyqt5.py',
+   'PYSOURCE'),
   ('conv', 'D:\\github\\computer-vision\\lab1\\conv.py', 'PYSOURCE'),
   ('conv.exe.manifest',
    'D:\\github\\computer-vision\\lab1\\build\\conv\\conv.exe.manifest',
@@ -43,7 +46,7 @@
  [],
  False,
  False,
- 1573095298,
+ 1573657742,
  [('run.exe',
    'C:\\Users\\97023\\Anaconda3\\envs\\cv\\lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit\\run.exe',
    'EXECUTABLE')])

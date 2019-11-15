@@ -102,6 +102,7 @@ class qtwindow(QWidget):
         self.label2.setPixmap(QPixmap("tmp.jpg").scaled(400, 300, Qt.KeepAspectRatio))
 
 def conv(filepath,method):
+    threshold=64
     if method=="sobel":
         filter=np.array([[-1,0,1],[-2,0,2],[-1,0,1]])
         filter1=np.array([[1,2,1],[0,0,0],[-1,-2,-1]])
@@ -127,7 +128,12 @@ def conv(filepath,method):
         newdata[1: , 1:] = data
     for i in range(width):
         for j in range(height):
-            newim[i,j]=(np.sum(newdata[i:i+kernel,j:j+kernel]*filter)+np.sum(newdata[i:i+kernel,j:j+kernel]*filter1))/2
+            tmp=(np.sum(newdata[i:i+kernel,j:j+kernel]*filter)+np.sum(newdata[i:i+kernel,j:j+kernel]*filter1))/2
+            print(tmp)
+            if(tmp>threshold):
+                newim[i,j]=255
+            else:
+                newim[i, j] = 0
     Image.fromarray(newim.astype('uint8')).save("tmp.jpg")
     print(newdata.shape)
 
