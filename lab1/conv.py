@@ -59,16 +59,28 @@ class qtwindow(QWidget):
 
         layout.addLayout(hbox1)
 
+        self.label3=QLabel();
+        self.label3.setText("kernel")
+        layout.addWidget(self.label3)
+
         self.input=QLineEdit()
-        self.input.setText("kernel")
+        self.input.setText("3")
         layout.addWidget(self.input)
 
+        self.label4 = QLabel();
+        self.label4.setText("sigma1")
+        layout.addWidget(self.label4)
+
         self.input1 = QLineEdit()
-        self.input1.setText("sigma1")
+        self.input1.setText("1.0")
         layout.addWidget(self.input1)
 
+        self.label5 = QLabel();
+        self.label5.setText("sigma2")
+        layout.addWidget(self.label5)
+
         self.input2 = QLineEdit()
-        self.input2.setText("sigma2")
+        self.input2.setText("1.0")
         layout.addWidget(self.input2)
 
         self.label2 = QLabel()
@@ -128,16 +140,19 @@ def conv(filepath,method):
         newdata[1: , 1:] = data
     for i in range(width):
         for j in range(height):
-            tmp=(np.sum(newdata[i:i+kernel,j:j+kernel]*filter)+np.sum(newdata[i:i+kernel,j:j+kernel]*filter1))/2
+            tmp=(abs(np.sum(newdata[i:i+kernel,j:j+kernel]*filter))+abs(np.sum(newdata[i:i+kernel,j:j+kernel]*filter1)))/2
+            '''
             print(tmp)
             if(tmp>threshold):
                 newim[i,j]=255
             else:
                 newim[i, j] = 0
+            '''
+            newim[i,j]=tmp
     Image.fromarray(newim.astype('uint8')).save("tmp.jpg")
     print(newdata.shape)
 
-def mean(filepath,kernel):
+def mean(filepath,kernel=3):
 
     im=Image.open(filepath)
     data=np.array(im)
@@ -155,7 +170,7 @@ def mean(filepath,kernel):
             newim[i,j,:]=np.mean(newdata[i:i+kernel,j:j+kernel,:],axis=(0,1))
     Image.fromarray(newim.astype('uint8')).save("tmp.jpg")
     print(newdata.shape)
-def median(filepath,kernel):
+def median(filepath,kernel=3):
     im = Image.open(filepath)
     data = np.array(im)
 
@@ -175,7 +190,7 @@ def median(filepath,kernel):
     print(newdata.shape)
 def gaus2d(x,y,sigma1,sigma2):
     return math.exp(-1*(x*x/2/sigma1/sigma1+y*y/2/sigma2/sigma2))/2/math.pi/sigma1/sigma2
-def gaussian(filepath,kernel,sigma1,sigma2):
+def gaussian(filepath,kernel=3,sigma1=1.0,sigma2=1.0):
     im = Image.open(filepath)
     data = np.array(im)
     filter=np.zeros((kernel,kernel,3))
