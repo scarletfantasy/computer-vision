@@ -89,8 +89,8 @@ class qtwindow(QWidget):
         self.hbox1.addWidget(self.btn3)
         '''
         self.btn4 = QPushButton()
-        self.btn4.setText("grayscalereconstruction")
-        self.btn4.clicked.connect(self.grayscalereconstruction)
+        self.btn4.setText("conditional erosion")
+        self.btn4.clicked.connect(self.Conditionalerosion)
         self.hbox1.addWidget(self.btn4)
         '''
 
@@ -151,7 +151,10 @@ class qtwindow(QWidget):
         self.setWindowTitle("test")
         self.setLayout(self.layout)
     def Conditionaldilation (self):
-        morphreconstruction(self.fname,self.fname1,self.sfilter,self.kernelx,self.kernely)
+        conditiondilation(self.fname,self.fname1,self.sfilter,self.kernelx,self.kernely)
+        self.label2.setPixmap(QPixmap("tmp.png").scaled(400, 300, Qt.KeepAspectRatio))
+    def Conditionalerosion (self):
+        conditionerosion(self.fname,self.fname1,self.sfilter,self.kernelx,self.kernely)
         self.label2.setPixmap(QPixmap("tmp.png").scaled(400, 300, Qt.KeepAspectRatio))
     def grayscalereconstruction(self):
         grayscalereconstruction(self.fname,self.fname1,self.sfilter,self.kernelx,self.kernely)
@@ -191,7 +194,7 @@ class qtwindow(QWidget):
         print("load--file")
         self.fname1, _ = QFileDialog.getOpenFileName(self, '选择图片', 'c:\\', 'Image files(*.png *.gif *.png)')
         print(self.fname)
-        self.label6.setPixmap(QPixmap(self.fname).scaled(400, 300, Qt.KeepAspectRatio))
+        self.label6.setPixmap(QPixmap(self.fname1).scaled(400, 300, Qt.KeepAspectRatio))
     def createtable(self):
         self.table = QTableWidget()
         self.table.setRowCount(int(self.input.text()))
@@ -292,6 +295,11 @@ def openopt(data,filter,kernelx,kernely):
     dialation1=dilation(erosion1,filter,kernelx,kernely)
 
     return dialation1
+def closeopt(data,filter,kernelx,kernely):
+    dialation1=dilation(data,filter,kernelx,kernely)
+    erosion1=dilation(dialation1,filter,kernelx,kernely)
+
+    return erosion1
 def grayscaleopenopt(data,filter,kernelx,kernely):
     erosion1=grayscaleeroisin(data,filter,kernelx,kernely)
     dialation1=grayscaledilation(erosion1,filter,kernelx,kernely)
@@ -301,21 +309,43 @@ def grayscalecloseopt(data,filter,kernelx,kernely):
     dilation1 = grayscaledilation(data, filter, kernelx, kernely)
     eroisin1 = grayscaledilation(dilation1, filter, kernelx, kernely)
     return eroisin1
-def morphreconstruction(filepath,filepath1,filter,kernelx,kernely):
+def conditiondilation(filepath,filepath1,filter,kernelx,kernely):
     im = Image.open(filepath).convert("L")
     im1=Image.open(filepath1).convert("L")
 
     v = np.array(im)
-    m=openopt(v,filter,1,1)
+    m=openopt(v,filter,kernelx,kernely)
     mask = np.array(im1)
     for i in range(v.shape[0]):
         for j in range(v.shape[1]):
             if mask[i][j] != 0:
                 mask[i][j] = 1
+    filter1=np.ones((3,3))
     while True:
         t = m.copy()
-        m = dilation(t, filter,kernelx,kernely)
+        m = dilation(t, filter1,1,1)
         m = m * mask
+        if np.equal(t, m).all():
+            break
+
+
+    Image.fromarray(m.astype('uint8')).save("tmp.png")
+def conditionerosion(filepath,filepath1,filter,kernelx,kernely):
+    im = Image.open(filepath).convert("L")
+    im1=Image.open(filepath1).convert("L")
+
+    v = np.array(im)
+    m=closeopt(v,filter,kernelx,kernely)
+    mask = np.array(im1)
+    for i in range(v.shape[0]):
+        for j in range(v.shape[1]):
+            if mask[i][j] != 0:
+                mask[i][j] = 255
+    filter1=np.ones((3,3))
+    while True:
+        t = m.copy()
+        m = eroisin(t, filter1,1,1)
+        m = (m<mask)*mask+(m>=mask)*m
         if np.equal(t, m).all():
             break
 
@@ -359,8 +389,8 @@ def cbr(filepath,filter,kernelx,kernely):
     g=openimage.copy()
     while True:
         m=g.copy()
-        g=grayscaledilation(g,filter1,1,1)
-        g=(g>data)*data+(g<=data)*g
+        g=grayscaleeroisin(g,filter1,1,1)
+        g=(g<data)*data+(g>=data)*g
         if np.equal(g,m).all():
             break
     Image.fromarray(m.astype('uint8')).save("tmp.png")
